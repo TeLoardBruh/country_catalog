@@ -1,10 +1,12 @@
 <template>
-  <div>
-    <h1 style="color: black; margin: auto">Counttry Calalog application</h1>
-    <div v-if="dataTable">
-      <TableCatatlog :dataTable="dataTable" :headerTable="headerTable" />
-    </div>
-    <ModelCatalog />
+  <h1 class="header-text">Country Calalog application</h1>
+  <div v-if="dataTable">
+    <TableCatatlog
+      @popUpModal="popUpModal"
+      :dataTable="dataTable"
+      :headerTable="headerTable"
+      :subDataTable="subDataTable"
+    />
   </div>
 </template>
 
@@ -12,12 +14,12 @@
 import TableCatatlog from './components/TableCatatlog.vue';
 import IDataTable from './common/interface/DataTable';
 import { useCountryStore } from './store/countryStore';
-import { onMounted } from 'vue';
-import ModelCatalog from './components/ModelCatalog.vue';
+import { onMounted, ref, Ref } from 'vue';
 
 const countryStore = useCountryStore();
 
-let dataTable: IDataTable[];
+const dataTable: Ref<IDataTable[]> = ref([]);
+const subDataTable: Ref<any> = ref([]);
 
 const headerTable: string[] = [
   'Flag',
@@ -36,7 +38,7 @@ onMounted(() => {
 const getAllCountries = async () => {
   await countryStore.getAllCountries();
 
-  dataTable = countryStore.getAllCountriesState.map((data: any) => ({
+  dataTable.value = countryStore.getAllCountriesState.map((data: any) => ({
     Flag: data.flags.png,
     'Country Name': data.name.official,
     '2 Character Country': data.cca2,
@@ -51,4 +53,20 @@ const getAllCountries = async () => {
     'Country Id': data.idd.root,
   }));
 };
+
+const popUpModal = async (emitValue: boolean, name: string) => {
+  await countryStore.getCountryByName(name);
+  subDataTable.value = countryStore.getCountryByNameState;
+};
 </script>
+
+<style>
+.header-text {
+  font-family: 'Arial Black', sans-serif;
+  font-size: 4.5em;
+  letter-spacing: -1px;
+  background-color: #2faae3;
+  color: white;
+  text-align: center;
+}
+</style>
