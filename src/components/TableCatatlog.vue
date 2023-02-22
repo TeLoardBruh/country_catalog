@@ -52,14 +52,14 @@
         />
       </template>
     </el-table>
-    <div class="pagination">
+    <div class="pagination" v-if="dataTable.length > 0">
       <el-pagination
         style="margin-top: 45px"
         :currentPage="currentPage"
         :page-size="pageSize"
         :background="background"
         layout="prev, pager, next"
-        :total="dataTable.length"
+        :total="totalLength"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
       />
@@ -94,6 +94,7 @@ const props = defineProps<{
 const search = ref('');
 const currentPage: Ref<number> = ref(1);
 const pageSize: Ref<number> = ref(25);
+const totalLength: Ref<number> = ref(0);
 const background = ref(true);
 const loading = ref(true);
 const dialogTableVisible = ref(false);
@@ -104,6 +105,7 @@ const filterTableData = computed(() => {
       !search.value ||
       data['Country Name'].toLowerCase().includes(search.value.toLowerCase())
   );
+  totalLength.value = searchingField.length;
   return pagination(searchingField, pageSize.value, currentPage.value);
 });
 
@@ -132,6 +134,9 @@ const handleCurrentChange = (val: number) => {
 };
 
 onMounted(() => {
+  if (props.dataTable && props.dataTable.length !== 0) {
+    totalLength.value = props.dataTable.length;
+  }
   if (!props.subDataTable || !props.dataTable) {
     loading.value = true;
   } else {
